@@ -1,6 +1,4 @@
-from typing import List
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 from pydantic import BaseModel
 from pynamodb.attributes import NumberAttribute, UnicodeAttribute
@@ -13,12 +11,8 @@ app = FastAPI()
 
 
 # Request bodyを受けるためのクラス(FastAPI)
-class Students(BaseModel):
-    name: str
-
 class ExamScore(BaseModel):
     subject: str
-    student_name: str
     score: int
 
 
@@ -56,7 +50,37 @@ def hello():
 
 @app.get("/students")
 def list_students():
-    return {"students": ["Alice", "Bob", "Charlie"]}
+    students = StudentsTable.scan()
+    return {"students": [student.name for student in students]}
+
+@app.post("/students/{student_name}")
+def add_exam_score(exam_score: ExamScore, student_name: str):
+    new_score = StudentsTable(
+        student_name,
+        subject=exam_score.subject,
+        score=exam_score.score,
+    )
+    new_score.save()
+
+@app.get("/exams")
+def get_exam_scores(student:str=None, subject: str=None):
+
+    if student and subject:
+        raise HTTPException(status_code=400, detail="hoge")
+
+    if student:
+        exams = StudentsTable.query(student)
+        return {"exams": [
+            {"subject": exam.subject, "score": exam.score}
+            for exam in exams
+        ]}
+    if subject:
+        exams = SubjectIndex.query(subject)
+        return {"exams": [
+            {"student": exam.name, "score": exam.score}
+            for exam in exams
+        ]}
+
 
 handler = Mangum(app, False)
 
