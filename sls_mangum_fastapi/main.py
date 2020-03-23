@@ -61,6 +61,11 @@ def add_exam_score(exam_score: ExamScore, student_name: str):
         score=exam_score.score,
     )
     new_score.save()
+    return {
+        "student": new_score.name,
+        "subject": new_score.subject,
+        "score": new_score.score,
+    }
 
 @app.get("/exams")
 def get_exam_scores(student:str=None, subject: str=None):
