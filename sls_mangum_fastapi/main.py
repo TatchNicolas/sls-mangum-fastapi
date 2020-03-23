@@ -61,11 +61,12 @@ def list_students():
 handler = Mangum(app, False)
 
 
-if StudentsTable.Meta.host and not StudentsTable.exists():
-    print('creating a table...')
-    StudentsTable.create_table(
-        read_capacity_units=1,
-        write_capacity_units=1,
-        wait=True
-    )
-    print('Done.')
+def init_ddb_local():
+    if StudentsTable.Meta.host and not StudentsTable.exists():
+        print('creating a table...')
+        StudentsTable.create_table(
+            read_capacity_units=1,
+            write_capacity_units=1,
+            wait=True
+        )
+        print('Done.')
