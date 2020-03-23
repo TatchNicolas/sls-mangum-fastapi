@@ -34,7 +34,7 @@ class SubjectIndex(GlobalSecondaryIndex):
     subject = UnicodeAttribute(hash_key=True)
     score = NumberAttribute(range_key=True)
 
-class StudentsModel(Model):
+class StudentsTable(Model):
     """
     生徒の成績を保持するテーブル
     """
@@ -50,20 +50,8 @@ class StudentsModel(Model):
     by_subject = SubjectIndex()
 
 
-    @classmethod
-    def init_ddb_local(cls):
-        """
-        docker-composeでローカル開発するときにDBを初期化する
-        環境変数としてDDB_HOSTを渡して、かつ接続先DDBにテーブルがない場合に動く
-        AWS上のテーブルはserverless.ymlの中でCloudFormationとして定義している
-        """
-        if cls.Meta.host and not cls.exists():
-            print(f'creating a table {cls.Meta.table_name} for {cls.Meta.host}')
-            cls.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
-
-
 @app.get("/")
-def read_root():
+def hello():
     return {"Hello": "World"}
 
 @app.get("/students")
@@ -71,3 +59,13 @@ def list_students():
     return {"students": ["Alice", "Bob", "Charlie"]}
 
 handler = Mangum(app, False)
+
+
+if StudentsTable.Meta.host and not StudentsTable.exists():
+    print('creating a table...')
+    StudentsTable.create_table(
+        read_capacity_units=1,
+        write_capacity_units=1,
+        wait=True
+    )
+    print('Done.')
