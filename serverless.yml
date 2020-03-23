@@ -1,0 +1,143 @@
+service: sls_mangum_fastapi
+
+custom:
+  defaultStage: dev
+  envMapping:
+    prd:
+      ENV: prd
+      DDB_TABLE: exam_scores-prd
+    stg:
+      ENV: stg
+      DDB_TABLE: exam_scores-stg
+    dev:
+      ENV: dev
+      DDB_TABLE: exam_scores-dev
+  pythonRequirements:
+    dockerizePip: false
+    usePoetry: true
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: ap-northeast-1
+  timeout: 300
+  logRetentionInDays: 7
+  stage: ${opt:stage, self:custom.defaultStage}
+  environment:
+    ENV: ${self:custom.envMapping.${self:provider.stage}.ENV}
+
+resources: # CloudFormation template syntax from here on.
+  Resources:
+    StudentsTable: 
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.envMapping.${self:provider.stage}.DDB_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: subject
+          AttributeType: S
+        - AttributeName: score
+          AttributeType: N
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: subject
+          KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: by_subject
+            KeySchema:
+            - AttributeName: subject
+              KeyType: HASH
+            - AttributeName: score
+              KeyType: RANGE
+            Projection:
+              ProjectionType: KEYS_ONLY
+    ManageStudentsRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /my/cust/path/
+        RoleName: ManageStudentsRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+        - PolicyName: myPolicyName
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:BatchGetItem
+                - dynamodb:BatchWriteItem
+                - dynamodb:DeleteItem
+                - dynamodb:DescribeTable
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+                - dynamodb:Scan
+                - dynamodb:UpdateItem
+              Resource:
+              - 'Fn::Join':
+                - ':'
+                -
+                  - 'arn:aws:dynamodb'
+                  - Ref: 'AWS::Region'
+                  - Ref: 'AWS::AccountId'
+                  - 'table/${self:custom.envMapping.${self:provider.stage}.DDB_TABLE}'
+            - Effect: Allow
+              Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              Resource:
+              - 'Fn::Join':
+                - ':'
+                -
+                  - 'arn:aws:logs'
+                  - Ref: 'AWS::Region'
+                  - Ref: 'AWS::AccountId'
+                  - 'log-group:/aws/lambda/*:*:*'
+
+
+package:
+  exclude:
+  - ./node_modules/
+  - ./tests/
+  - ./docker-compose.yml
+  - ./package.json
+  - ./package-lock.json
+  - ./poetry.lock
+  - ./pyproject.toml
+  - ./serverless.yml
+  - ./README.md
+  - ./.gitignore
+  - ./.venv
+
+functions:
+  manage_students:
+    events:
+    - http:
+        path: /
+        method: GET
+        private: false
+        cors: true
+    - http:
+        path: /
+        method: POST
+        private: false
+        cors: true
+    handler: manage_students.main.handler
+    environment:
+      PYTHONPATHi: sls_mangum_fastapi
+      DDB_TABLE: ${self:custom.envMapping.${self:provider.stage}.DDB_TABLE}
+    role: ManageStudentsRole
+
+plugins:
+- serverless-python-requirements
