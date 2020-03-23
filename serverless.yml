@@ -124,23 +124,8 @@ functions:
   manage_students:
     events:
     - http:
-        path: /
+        path: /{path+}
         method: GET
-        private: false
-        cors: true
-    - http:
-        path: /students
-        method: GET
-        private: false
-        cors: true
-    - http:
-        path: /students/{name}
-        method: GET
-        private: false
-        cors: true
-    - http:
-        path: /students/{name}
-        method: POST
         private: false
         cors: true
     handler: manage_students.main.handler
