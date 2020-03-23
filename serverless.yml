@@ -1,4 +1,4 @@
-service: sls_mangum_fastapi
+service: fantastic-service-with-fastapi
 
 custom:
   defaultStage: dev
