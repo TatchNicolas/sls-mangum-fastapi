@@ -51,7 +51,7 @@ def hello():
 @app.get("/students")
 def list_students():
     students = StudentsTable.scan()
-    return {"students": [student.name for student in students]}
+    return {"students": set([student.name for student in students])}
 
 @app.post("/students/{student_name}")
 def add_exam_score(exam_score: ExamScore, student_name: str):

@@ -129,7 +129,17 @@ functions:
         private: false
         cors: true
     - http:
-        path: /
+        path: /students
+        method: GET
+        private: false
+        cors: true
+    - http:
+        path: /students/{name}
+        method: GET
+        private: false
+        cors: true
+    - http:
+        path: /students/{name}
         method: POST
         private: false
         cors: true
