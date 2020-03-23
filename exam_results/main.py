@@ -74,12 +74,12 @@ def save_score(exam_result: ExamResult):
     )
     new_score.save()
     return {
-        "student": new_score.name,
+        "name": new_score.name,
         "subject": new_score.subject,
         "score": new_score.score,
     }
 
-@app.get("/scores")
+@app.get("/scores", response_model=ExamResultList)
 def get_score(student: str=None, subject: str=None):
     """
     試験の成績を問い合わせる
@@ -92,7 +92,7 @@ def get_score(student: str=None, subject: str=None):
         )
 
     if student:
-        return [
+        body =  [
             {
                 "name": score.name,
                 "subject": score.subject,
@@ -101,7 +101,7 @@ def get_score(student: str=None, subject: str=None):
         ]
 
     if subject:
-        return [
+        body =  [
             {
                 "name": score.name,
                 "subject": score.subject,
@@ -109,17 +109,13 @@ def get_score(student: str=None, subject: str=None):
             } for score in SubjectIndex.query(subject)
         ]
 
-    raise HTTPException(
-            status_code=400,
-            detail="Expects exactly one of the following query parameters: student, subject"
-    )
+    return {"exam_results": body}
 
 
 handler = Mangum(app, False)
 
 # ---------------------------
 # ローカル環境の初期化用
-# docker-compose exec 
 # ---------------------------
 
 def init_ddb_local():
