@@ -14,7 +14,7 @@ DDB_HOST = environ.get('DDB_HOST')
 DDB_TABLE = environ['DDB_TABLE']
 AWS_REGION = environ['AWS_REGION']
 
-app = FastAPI()
+app = FastAPI()  # FastAPIのインスタンス
 
 # ---------------------------
 # FastAPIで扱う
@@ -112,7 +112,7 @@ def get_score(student: str=None, subject: str=None):
     return {"exam_results": body}
 
 
-handler = Mangum(app, False)
+handler = Mangum(app, False)  # FastAPIのインスタンスをMangumのコンストラクタに渡して、handlerとして読めるようにしておく
 
 # ---------------------------
 # ローカル環境の初期化用

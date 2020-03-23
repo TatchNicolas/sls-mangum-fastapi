@@ -1,4 +1,4 @@
-service: fantastic-service-with-fastapi
+service: fantastic-service-with-fastapi # 適当な名前に変えて下さい
 
 custom:
   defaultStage: dev
@@ -126,6 +126,11 @@ functions:
     - http:
         path: /{path+}
         method: GET
+        private: false
+        cors: true
+    - http:
+        path: /{path+}
+        method: POST
         private: false
         cors: true
     handler: exam_results.main.handler
