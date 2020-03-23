@@ -5,13 +5,13 @@ custom:
   envMapping:
     prd:
       ENV: prd
-      DDB_TABLE: exam_scores-prd
+      DDB_TABLE: exam_results-prd
     stg:
       ENV: stg
-      DDB_TABLE: exam_scores-stg
+      DDB_TABLE: exam_results-stg
     dev:
       ENV: dev
-      DDB_TABLE: exam_scores-dev
+      DDB_TABLE: exam_results-dev
   pythonRequirements:
     dockerizePip: false
     usePoetry: true
@@ -121,16 +121,16 @@ package:
   - ./.venv
 
 functions:
-  manage_students:
+  exam_results:
     events:
     - http:
         path: /{path+}
         method: GET
         private: false
         cors: true
-    handler: manage_students.main.handler
+    handler: exam_results.main.handler
     environment:
-      PYTHONPATH: manage_students
+      PYTHONPATH: exam_results
       DDB_TABLE: ${self:custom.envMapping.${self:provider.stage}.DDB_TABLE}
     role: ManageStudentsRole
 
