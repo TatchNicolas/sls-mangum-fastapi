@@ -135,7 +135,7 @@ functions:
         cors: true
     handler: manage_students.main.handler
     environment:
-      PYTHONPATHi: sls_mangum_fastapi
+      PYTHONPATH: manage_students
       DDB_TABLE: ${self:custom.envMapping.${self:provider.stage}.DDB_TABLE}
     role: ManageStudentsRole
 

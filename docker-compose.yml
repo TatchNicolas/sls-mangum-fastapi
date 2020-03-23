@@ -4,16 +4,16 @@ services:
     build: .
     ports:
     - 8001:8001
-    command: ["uvicorn", "sls_mangum_fastapi.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+    command: ["uvicorn", "manage_students.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
     environment:
     - AWS_ACCESS_KEY_ID=xxx
     - AWS_SECRET_ACCESS_KEY=xxx
-    - PYTHONPATH=sls_mangum_fastapi
+    - PYTHONPATH=manage_students
     - DDB_HOST=http://dynamodb:8081
     - DDB_TABLE=exam_scores-local
     - AWS_REGION=ap-northeast-1
     volumes:
-    - $PWD/sls_mangum_fastapi:/sls_mangum_fastapi
+    - $PWD/manage_students:/manage_students
     links:
     - dynamodb 
   dynamodb:
