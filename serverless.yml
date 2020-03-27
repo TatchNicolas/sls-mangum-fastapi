@@ -125,12 +125,7 @@ functions:
     events:
     - http:
         path: /{path+}
-        method: GET
-        private: false
-        cors: true
-    - http:
-        path: /{path+}
-        method: POST
+        method: ANY
         private: false
         cors: true
     handler: exam_results.main.handler
