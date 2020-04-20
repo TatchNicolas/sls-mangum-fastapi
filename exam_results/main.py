@@ -73,11 +73,7 @@ def save_score(exam_result: ExamResult):
         score=exam_result.score,
     )
     new_score.save()
-    return {
-        "name": new_score.name,
-        "subject": new_score.subject,
-        "score": new_score.score,
-    }
+    return exam_result
 
 @app.get("/scores", response_model=ExamResultList)
 def get_score(student: str=None, subject: str=None):

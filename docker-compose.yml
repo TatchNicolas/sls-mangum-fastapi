@@ -12,6 +12,7 @@ services:
     - DDB_HOST=http://dynamodb:8081
     - DDB_TABLE=exam_results-local
     - AWS_REGION=ap-northeast-1
+    - PYTHONUNBUFFERED=yes
     volumes:
     - $PWD/exam_results:/exam_results
     links:
